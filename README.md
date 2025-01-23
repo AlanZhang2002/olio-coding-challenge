@@ -1,8 +1,33 @@
-# React + Vite
+# Olio Labs Coding Challenge
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Setup
 
-Currently, two official plugins are available:
+There are two main parts to the project, the frontend and the backend. The frontend is built using React and Vite, the backend is built using Node.js and Express. 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Environment Variables
+
+- `VITE_API_URL`: The URL of the backend API. This is set in the `client/.env` file.
+
+- `VITE_AIRTABLE_API_KEY`: The Airtable API key. This is set in the `server/.env` file.
+- `VITE_AIRTABLE_BASE_ID`: The Airtable base ID. This is set in the `server/.env` file.
+
+### Frontend
+
+```bash
+cd client
+# install dependencies
+npm install
+
+# run app
+npm run dev
+```
+### Backend
+
+```bash
+cd server
+# install dependencies
+npm install
+
+# run app
+node index.js
+```
