@@ -16,11 +16,11 @@ const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process
 // Endpoint to fetch today's experiment
 app.get('/api/experiment', async (req, res) => {
   try {
-    // const today = new Date();
-    // const formattedDate = today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
     // for testing
-    const formattedDate = '2025-01-14'
+    // const formattedDate = '2025-01-14'
 
     // realistically there should only be one record per day
     const records = await base('experiment_metadata').select({
