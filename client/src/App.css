@@ -1,0 +1,77 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.text-area {
+  width: 300px;
+  height: 100px;
+  resize: both;
+  display: block;
+  margin: 0 auto;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 20px 0;
+}
+
+.centered-form {
+  margin: 0 20px;
+}
+
+nav {
+  position: sticky; /* or use fixed for a different effect */
+  top: 0; /* This will keep it at the top of the viewport */
+  background-color: #121212; /* Dark background color */
+  color: white; /* Text color */
+  z-index: 1000; /* Ensure it stays above other content */
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+nav a {
+  margin: 0 15px; /* Adjust the value to increase or decrease spacing */
+  text-decoration: none; /* Optional: remove underline from links */
+  color: white; /* Set link color to white */
+}
