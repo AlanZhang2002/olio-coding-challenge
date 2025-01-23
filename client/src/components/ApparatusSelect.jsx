@@ -12,6 +12,7 @@ const ApparatusSelect = ({ options, onChange }) => {
       options={formattedOptions}
       onChange={onChange}
       placeholder="Select an apparatus..."
+      style={{margin: "0 15px"}}
     />
   );
 };

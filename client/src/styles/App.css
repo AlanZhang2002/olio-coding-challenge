@@ -58,20 +58,33 @@
 
 .centered-form {
   margin: 0 20px;
+  width: 100%;
+  /* max-width: 500px; */
 }
 
 nav {
-  position: sticky; /* or use fixed for a different effect */
-  top: 0; /* This will keep it at the top of the viewport */
-  background-color: #121212; /* Dark background color */
-  color: white; /* Text color */
-  z-index: 1000; /* Ensure it stays above other content */
+  position: sticky;
+  top: 0;
+  background-color: #121212; 
+  color: white;
+  z-index: 1000;
   padding: 10px;
   margin-bottom: 20px;
 }
 
 nav a {
-  margin: 0 15px; /* Adjust the value to increase or decrease spacing */
-  text-decoration: none; /* Optional: remove underline from links */
-  color: white; /* Set link color to white */
+  margin: 0 15px;
+  text-decoration: none;
+  color: white;
 }
+
+/* #notes-container {
+  flex:  */
+
+/* DatePicker {
+  margin: 0 15px;
+}
+
+Select {
+  margin: 0 15px;
+} */

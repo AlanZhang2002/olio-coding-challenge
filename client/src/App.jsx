@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import PriorExperimentsPage from './pages/PriorExperimentsPage';
-import ApparatusSelect from './ApparatusSelect';
+import ApparatusSelect from './components/ApparatusSelect';
 
-import './App.css';
+import './styles/App.css';
 
 function App() {
   const [data, setData] = useState([]);
@@ -14,6 +14,11 @@ function App() {
   const [apparatusNotes, setApparatusNotes] = useState('');
   const [experimentNotes, setExperimentNotes] = useState(''); 
   const [apparatusOptions, setApparatusOptions] = useState([]);
+  const [originalApparatusNotes, setOriginalApparatusNotes] = useState('');
+  const [originalExperimentNotes, setOriginalExperimentNotes] = useState('');
+  const [newApparatusNotes, setNewApparatusNotes] = useState('');
+  const [newExperimentNotes, setNewExperimentNotes] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -45,7 +50,7 @@ function App() {
   };
 
   const handleApparatusChange = async (selectedApparatus) => {
-    setSelectedApparatus(selectedApparatus);
+    setSelectedApparatus(selectedApparatus.value);
     setApparatusNotes('');
   
     try {
@@ -70,7 +75,11 @@ function App() {
       }
 
       setApparatusNotes(apparatus_data.experimenter_notes);
-      setExperimentNotes(data.experimenter_notes);
+      setExperimentNotes(data[0].experimenter_notes);
+
+      setOriginalApparatusNotes(apparatus_data.experimenter_notes);
+      setOriginalExperimentNotes(data[0].experimenter_notes);
+      // setInterval(fetchNotes, 30000); // check for updates every 30 seconds
 
     } catch (error) {
       console.error('Error sending data to backend:', error);
@@ -94,7 +103,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ apparatusId: selectedApparatus.value, notes: apparatusNotes })
+        body: JSON.stringify({ apparatusId: selectedApparatus, notes: apparatusNotes })
       });
   
       if (!response.ok) { // this will error out without write access
@@ -117,56 +126,83 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ experimentId: selectedExperiment.value, notes: experimentNotes })
+        body: JSON.stringify({ experimentId: data[0].experiment_id, notes: experimentNotes })
       });
   
       if (!response.ok) { // this will error out without write access
         throw new Error('Network response was not ok');
       }
   
-      const data = await response.json();
-      console.log('Data from backend:', data);
+      const responseData = await response.json();
+      console.log('Data from backend:', responseData);
     } catch (error) {
       console.error('Error sending data to backend:', error);
     }
   };
+
+  const fetchNotes = async () => {
+    try {
+      console.log('Fetching notes...');
+      console.log('Experiment ID:', data[0].experiment_id);
+      console.log('Apparatus ID:', selectedApparatus);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/notes?experimentId=${data[0].experiment_id}&apparatusId=${selectedApparatus}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const notesData = await response.json();
+      // setOriginalExperimentNotes(data[0].experimenter_notes);
+      // setOriginalApparatusNotes(data[1].experimenter_notes);
+      setNewExperimentNotes(notesData[0].experimenter_notes);
+      setNewApparatusNotes(notesData[1].experimenter_notes);
+
+      checkUpdates();
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    }
+  };
   
-  // const refreshData = () => {
-  //   setSelectedApparatus(null);
-  //   setApparatusNotes('');
-  //   setExperimentNotes('');
-  //   setInjectionVolume('');
-  //   setSyringeColor('');
-  //   setApparatusOptions([]);
-  //   fetchData();
-  // };
-  
+  const checkUpdates = () => {
+    if (originalExperimentNotes !== newExperimentNotes || originalApparatusNotes !== newApparatusNotes) {
+      setHasChanges(true);
+    }
+  };
+
+  const updateNotes = async () => {
+    setExperimentNotes(newExperimentNotes);
+    setApparatusNotes(newApparatusNotes);
+    setOriginalExperimentNotes(newExperimentNotes);
+    setOriginalApparatusNotes(newApparatusNotes);
+    setHasChanges(false);
+  }
+
   // Fetch data on load
   useEffect(() => {
     fetchData();
   }, []);
 
+
   return (
     <Router>
+      <nav>
+        <Link to="/">Today's Experiments</Link>
+        <Link to="/prior-experiments">Prior Experiments</Link>
+      </nav>
       <div className="App">
-        <nav>
-          <Link to="/">Today's Experiments</Link>
-          <Link to="/prior-experiments">Prior Experiments</Link>
-        </nav>
+        
         <Routes>
           <Route path="/prior-experiments" element={<PriorExperimentsPage />} />
           <Route path="/" element={
             <>
-              {/* <button className="refresh-button" onClick={fetchData}>Refresh Data</button> */}
               <div>
-                {data.map((item, index) => (
+                {data.map((item, index) => ( /* Just in case there are multiple experiments for a day? shouldnt happen, could be simplified later */
                   <div key={index}>
                     <h3>Today's Instructions</h3>
                     <p>{item.general_instructions}</p>
                   </div>
                 ))}
               </div>
-              <p>Selected Apparatus: {selectedApparatus ? selectedApparatus.label : 'None'}</p>
+              {/* <p>Selected Apparatus: {selectedApparatus ? selectedApparatus.label : 'None'}</p> */}
               <ApparatusSelect 
                 options={apparatusOptions} 
                 onChange={handleApparatusChange} 
@@ -178,7 +214,10 @@ function App() {
                     {injectionVolume ? <p>Injection Volume: {injectionVolume}</p> : null}
                     {syringeColor ? <p>Syringe Color: {syringeColor}</p> : null}
                   </div>
-                  <div className="flex-container"> 
+                  {hasChanges ? (
+                    <button className="refresh-button" onClick={updateNotes}>Update Notes</button>
+                  ) : null}
+                  <div className="flex-container" id="notes-container"> 
                     <form onSubmit={handleApparatusSubmit} className="centered-form">
                       <label>
                         Apparatus Notes:

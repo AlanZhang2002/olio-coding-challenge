@@ -83,9 +83,15 @@ app.put('/api/apparatus', async (req, res) => {
   try {
     const apparatusId = req.body.apparatusId;
     const notes = req.body.notes;
+    // Get record id from apparatus id
+    const id = await base('apparatus_metadata').select({
+      filterByFormula: `apparatus_id = "${apparatusId}"`,
+      maxRecords: 1
+    }).all();
+
     const record = await base('apparatus_metadata').update([
         {
-            'id': apparatusId,
+            'id': id[0].id,
             'fields': {
                 'experimenter_notes': notes
             }
@@ -137,12 +143,12 @@ app.put('/api/experiment', async (req, res) => {
 // Endpoint to fetch all experiment dates
 app.get('/api/experiment_dates', async (req, res) => {
     try {
-        const records = await base('experiment_metadata').select({
-            fields: ['experiment_date'],
-            filterByFormula: `NOT({experiment_date} = "")`
-        }).all();
-        const responseData = records.map(record => record.fields);
-        res.json(responseData);
+      const records = await base('experiment_metadata').select({
+          fields: ['experiment_date'],
+          filterByFormula: `NOT({experiment_date} = "")`
+      }).all();
+      const responseData = records.map(record => record.fields);
+      res.json(responseData);
     } catch (error) {
         console.error('Error fetching experiment dates:', error);
         res.status(500).json({ error: 'Error fetching experiment dates' });
@@ -164,6 +170,32 @@ app.get('/api/apparatuses', async (req, res) => {
         console.error('Error fetching apparatuses:', error);
         res.status(500).json({ error: 'Error fetching apparatuses' });
     }
+});
+
+// Endpoint to fetch apparatus notes and experiment notes
+app.get('/api/notes', async (req, res) => {
+  try {
+      const experimentId = req.query.experimentId;
+      const apparatusId = req.query.apparatusId;
+      console.log('Fetching notes for experimentId:', experimentId, 'and apparatusId:', apparatusId);
+
+      const experimentNotes = await base('experiment_metadata').select({
+        filterByFormula: `experiment_id = "${experimentId}"`,
+        fields: ['experimenter_notes']
+      }).all();
+
+      const apparatusNotes = await base('apparatus_metadata').select({
+        filterByFormula: `AND(apparatus_id = "${apparatusId}", experiment_id = "${experimentId}")`,
+        fields: ['experimenter_notes']
+      }).all();
+
+      const records = [experimentNotes[0], apparatusNotes[0]];
+      const responseData = records.map(record => record.fields);
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error fetching experiment dates:', error);
+      res.status(500).json({ error: 'Error fetching experiment dates' });
+  }
 });
 
 app.listen(port, () => {
